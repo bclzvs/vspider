@@ -1,0 +1,17 @@
+<!DOCTYPE>
+<html>
+<head>
+	<title>it163 computer</title>
+</head>
+<body>
+	<div id="nav">
+		<ul>
+			<li><a href='productList?c=memory'>memory</a></li>
+			<li><a href='productList?c=harddisk'>harddisk</a></li>
+			<li><a href='productList?c=keyboard'>keyboard</a></li>
+			<li><a href='productList?c=disp'>disp</a></li>
+			<li><a href='productList?c=net'>net</a></li>
+		</ul>
+	</div>
+</body>
+</html>
