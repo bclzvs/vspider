@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/un.h>
-//
+
 char *spide_url(char *url);
 SpideResultP spide(TemplateP template)
 {
