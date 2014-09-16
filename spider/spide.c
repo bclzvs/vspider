@@ -91,7 +91,6 @@ SR spide_url(char *url)
 					//hbuf[i+1] = '\0';
 					bodyi = i + 2; // \r\n
 					hbufed = 1;
-					//TODO:memcpy(bodybuf, 
 					memcpy(bodybuf, rbuf+i+2, count-i-2);
 					bodylen = count-i-2;
 				}
@@ -104,13 +103,6 @@ SR spide_url(char *url)
 			memcpy(bodybuf+bodylen, rbuf, count);	
 			bodylen += count;
 		}
-		// if transfer-encoding is chunked, '0' is end of chunked
-		if( rbuf[count-4] == '\n' || rbuf[count-3] == '0' || rbuf[count-2] == '\r' || rbuf[count-1] == '\n'){ 
-			//printf("find chunk:%s\n", rbuf);
-		//	break;
-
-		}
-		//if(count ==0) break;
 	}
 //	printf("header:\n%s",hbuf);
 	int	http_status = http_getStatus(hbuf);
