@@ -1,6 +1,10 @@
 # exe file
 vspider
 
+# vim file
+*.swo
+*.swp
+
 # Object files
 *.o
 *.ko

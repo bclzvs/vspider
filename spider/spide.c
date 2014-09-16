@@ -62,6 +62,7 @@ SR spide_url(char *url)
 "Accept: text/html\n"
 "User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1707.0 Safari/537.36\n"
 //"Accept-Encoding: gzip,deflate,sdch\n"
+"TE: trailers, chunked"
 "Accept-Language: zh-CN,zh;q=0.8,en;q=0.6\n"
 "\n"
 , url, host);			
@@ -69,16 +70,19 @@ SR spide_url(char *url)
 		log_err("send error:%s\n", strerror(errno));
 	}
 	char hbuf[2048];	// save headers;
-	char rbuf[8192];
-	char *bodybuf = malloc(8192);
+	int	bufsize = 8192;
+	char rbuf[bufsize];
+	char *bodybuf = malloc(bufsize);
+	int	bodybufsize = bufsize;
 	int bodylen = 0;
 	int 	count = 0;
 	int	hbufed = 0;
 	int	bodyi = 0;
 	// get head
-	while( (count = read(sockfd, rbuf,8192)) > 0){
-		//printf("%s",rbuf);	 
+	while( (count = read(sockfd, rbuf,bufsize)) > 0){
+		printf("bufstarted-------\n%s\n",rbuf);	 
 		if(hbufed == 0){
+			//printf("first buffer:%s\n", rbuf);
 			int i = 1;
 			for(;i < count; i++){
 				if(rbuf[i-1] == '\n' && rbuf[i] == '\r'){
@@ -88,18 +92,34 @@ SR spide_url(char *url)
 					bodyi = i + 2; // \r\n
 					hbufed = 1;
 					//TODO:memcpy(bodybuf, 
+					memcpy(bodybuf, rbuf+i+2, count-i-2);
+					bodylen = count-i-2;
 				}
 			}
 		} else {
-			//TODO:memcpy rbuf to bodybuf	
+			if( (bodylen + count) > bodybufsize){
+				bodybuf = realloc(bodybuf, bodylen+count+1);
+				//memcpy(bodybuf, 	
+			}	
+			memcpy(bodybuf+bodylen, rbuf, count);	
+			bodylen += count;
 		}
+		// if transfer-encoding is chunked, '0' is end of chunked
+		if( rbuf[count-4] == '\n' || rbuf[count-3] == '0' || rbuf[count-2] == '\r' || rbuf[count-1] == '\n'){ 
+			//printf("find chunk:%s\n", rbuf);
+		//	break;
+
+		}
+		//if(count ==0) break;
 	}
-	printf("header:\n%s",hbuf);
+//	printf("header:\n%s",hbuf);
 	int	http_status = http_getStatus(hbuf);
 	if(http_status >= 400) {
 		ret->status = SPIDE_EHTTPSTATUS;
 		return ret;
 	}
+
+//	printf("len:%d html:%s\n",bodylen, bodybuf);
 	ret->html = bodybuf;
 	return ret;
 }
