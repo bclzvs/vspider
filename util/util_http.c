@@ -45,7 +45,7 @@ char *http_getHeaderVal(char *headBuf, char *key)
 }
 
 /* remove chunk tag */
-char *http_rmchunk(char *bodybuf)
+char *http_rmchunk(char *bodybuf, int *pretlen)
 {
 	char lenbuf[20];
 	int	retlen = 0;
@@ -56,7 +56,7 @@ char *http_rmchunk(char *bodybuf)
 	int len = 0;
 	len = strtol(chunk_len_index, NULL, 16);
 	for(; len > 0; len = strtol(chunk_len_index, NULL, 16)){
-//		printf("chunk len:%d\n", len);
+		printf("chunk len:%d\n", len);
 		chunk_len_end = strchr(chunk_len_index, '\r');
 		con_index = chunk_len_end + 2;  // skip \r\n move to content start
 		ret = (char *)realloc(ret, retlen + len + 1);
@@ -64,8 +64,9 @@ char *http_rmchunk(char *bodybuf)
 		retlen += len;
 		ret[retlen] = '\0';	
 //		log_debug("chunk:%s\n", ret);
-		chunk_len_index = con_index + len ; // locate to next chunk len
+		chunk_len_index = con_index + len + 2; // locate to next chunk len, 2 is pre \r\n
 		//e = s;
 	}
+	*pretlen = retlen;
 	return ret; 
 }

@@ -5,6 +5,7 @@
 struct spide_result_t {
 	int	status;
 	int 	http_status;
+	int	content_len;
 	char	*html;
 };
 typedef struct spide_result_t* SpideResultP;

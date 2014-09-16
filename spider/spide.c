@@ -17,7 +17,9 @@ SpideResultP spide(TemplateP template)
 {
 	log_info("spide name:%s, url:%s\n",template->name, template->url);
 	SR ret = spide_url(template->url); 
-	if(ret->status == SPIDE_SUCCESS) log_info("spide success\n");
+	if(ret->status == SPIDE_SUCCESS){
+		log_info("spide success, len:%d\n", ret->content_len);
+	}
 	return ret;
 }
 
@@ -97,7 +99,7 @@ SR spide_url(char *url)
 			}
 		} else {
 			if( (bodylen + count) > bodybufsize){
-				bodybuf = realloc(bodybuf, bodylen+count+1);
+				bodybuf = realloc(bodybuf, bodylen+count);
 				//memcpy(bodybuf, 	
 			}	
 			memcpy(bodybuf+bodylen, rbuf, count);	
@@ -112,13 +114,14 @@ SR spide_url(char *url)
 	}
 	char *ed = http_getHeaderVal(hbuf, "Transfer-Encoding");
 	log_debug("encodings:%s\n",ed);
+	//log_debug("html:%s\n", bodybuf);
 	if(strstr(ed, "chunked") != NULL) {
-		ret->html = http_rmchunk(bodybuf);
+		ret->html = http_rmchunk(bodybuf, &ret->content_len);
 		free(bodybuf);	
 	} else {
 		ret->html = bodybuf;
 	}
-	printf("html:%s\n",ret->html);
+	//printf("rmed html:%s\n",ret->html);
 	free(ed);
 	return ret;
 }
