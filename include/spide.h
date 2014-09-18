@@ -13,5 +13,6 @@ typedef struct spide_result_t *SR;
 #define SPIDE_SUCCESS	0
 #define SPIDE_EDNS	1
 #define SPIDE_ECONN	2
+#define SPIDE_EHTTPSTATUS 3
 SpideResultP spide(TemplateP template);
 #endif

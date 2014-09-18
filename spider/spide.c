@@ -8,6 +8,9 @@
 #include <netdb.h>
 #include <sys/un.h>
 #include "../include/util_url.h"
+#include "stdio.h"
+#include <errno.h>
+#include "../include/util_http.h"
 
 SR spide_url(char *url);
 SpideResultP spide(TemplateP template)
@@ -29,31 +32,74 @@ SR spide_url(char *url)
 	SR	ret;
 	ret = malloc(sizeof(struct spide_result_t));
 	int	l = strlen(url)+1;
-	if( (hptr = gethostbyname(url_gethost(url,l))) == NULL){
+	char	*host = url_gethost(url,l);
+	if( (hptr = gethostbyname(host)) == NULL){
 		log_err("gethostbyname error for host:%s:%s",url, hstrerror(h_errno));
 		ret->status = SPIDE_EDNS;
 		return ret;
 	}
+
 	pptr = (struct in_addr**) hptr->h_addr_list;
-	for(; *pptr != NULL; pptr++) {
-	//	inet_ntop(hptr->h_addrtype, *pptr,ipstr,16);
-	//	log_info("\taddress:%s\n",ipstr);
-	}	
-	pptr--;
 	if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)	
 		log_err("socket error\n");
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port	= htons(80);
 	memcpy(&addr.sin_addr, *pptr, sizeof(struct in_addr));
+
 	log_info("connecting\n");
 	if( connect(sockfd, (struct sockaddr*)&addr, sizeof(addr)) != 0){
 		inet_ntop(hptr->h_addrtype, *pptr,ipstr,16);
 		log_err("connect %s:%s failed\n", url, ipstr);
 		ret->status = SPIDE_ECONN;
-	} else {
-		log_info("connected\n");
+		return ret;
 	}
-//	return "tmp html";	
+	log_info("connected\n");
+	char sendBuf[1024];	
+	sprintf(sendBuf, "GET %s HTTP/1.1\n"
+"Host: %s\n"
+"Connection: keep-alive\n"
+"Accept: text/html\n"
+"User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1707.0 Safari/537.36\n"
+//"Accept-Encoding: gzip,deflate,sdch\n"
+"Accept-Language: zh-CN,zh;q=0.8,en;q=0.6\n"
+"\n"
+, url, host);			
+	if(send(sockfd, sendBuf, 1024, 0) == -1){
+		log_err("send error:%s\n", strerror(errno));
+	}
+	char hbuf[2048];	// save headers;
+	char rbuf[8192];
+	char *bodybuf = malloc(8192);
+	int bodylen = 0;
+	int 	count = 0;
+	int	hbufed = 0;
+	int	bodyi = 0;
+	// get head
+	while( (count = read(sockfd, rbuf,8192)) > 0){
+		//printf("%s",rbuf);	 
+		if(hbufed == 0){
+			int i = 1;
+			for(;i < count; i++){
+				if(rbuf[i-1] == '\n' && rbuf[i] == '\r'){
+					log_debug("found split line %d\n",i);
+					memcpy(hbuf, rbuf, i);	 
+					//hbuf[i+1] = '\0';
+					bodyi = i + 2; // \r\n
+					hbufed = 1;
+					//TODO:memcpy(bodybuf, 
+				}
+			}
+		} else {
+			//TODO:memcpy rbuf to bodybuf	
+		}
+	}
+	printf("header:\n%s",hbuf);
+	int	http_status = http_getStatus(hbuf);
+	if(http_status >= 400) {
+		ret->status = SPIDE_EHTTPSTATUS;
+		return ret;
+	}
+	ret->html = bodybuf;
 	return ret;
 }
