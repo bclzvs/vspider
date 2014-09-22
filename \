@@ -1,0 +1,21 @@
+#include "../include/util_http.h"
+#include <check.h>
+
+START_TEST(test_getheader)
+{
+	ck_assert_str_eq("", http_getHeaderVal("", ""));
+}
+END_TEST
+
+Suite *suite_util_http()
+{
+	Suite *s;
+	TCase *tc_core;
+	s = suite_create("util_http");
+	tc_core = tcase_create("util_http");
+	tcase_add_test(tc_core,test_getheader);
+
+	suite_add_tcase(s, tc_core);
+	return s;
+}
+

@@ -3,5 +3,6 @@
 
 // get status from header buffer;
 int http_getStatus(char *headBuf);
-
+/* get header value from header buffer */
+char *http_getHeaderVal(char *headBuf, char *key);
 #endif

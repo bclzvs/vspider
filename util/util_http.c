@@ -23,13 +23,22 @@ int http_getStatus(char *headerBuf)
 }
 
 /* get header value from header buf */
-char *http_getHeaderVal(char *headBuf, char *key, int len)
+char *http_getHeaderVal(char *headBuf, char *key)
 {
-	char *fkey = malloc(len+4);
-	fkey[0] = "\r";
-	fkey[1] = "\n";
+	int len = strlen(key);
+	int fl = len + 4; // \r \n : \0 so is 4
+	char *fkey = malloc(fl);
+	fkey[0] = '\r';
+	fkey[1] = '\n';
 	memcpy(fkey+2, key, len);
-	fkey[2+len] = ":";
-	fkey[3+len] = "\0";
-	strstr(headBuf, fkey); 
+	fkey[2+len] = ':';
+	fkey[3+len] = '\0';
+	char *p = strstr(headBuf, fkey); 
+	free(fkey);
+	if(p == NULL) return NULL;
+	p += fl;	
+	char *ep = strchr(p, '\r');
+	char *ret = malloc(ep - p);
+	memcpy(ret, p, ep-p);
+	return ret;	
 }
