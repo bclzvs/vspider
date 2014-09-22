@@ -19,6 +19,13 @@ START_TEST(test_getstatus)
 }
 END_TEST
 
+START_TEST(test_rmchunk)
+{
+	char *bodybuf ="d\r\n<html><body>\ne\r\n</body></html>0\r\noooo";
+	ck_assert_str_eq("<html><body>\n</body></html>",http_rmchunk(bodybuf));
+}
+END_TEST
+
 Suite *make_util_http_suite()
 {
 	Suite *s;
@@ -28,6 +35,7 @@ Suite *make_util_http_suite()
 	tcase_add_test(tc_core,test_getheader);
 	tcase_add_test(tc_core,test_getheader_null);
 	tcase_add_test(tc_core,test_getstatus);
+	tcase_add_test(tc_core,test_rmchunk);
 
 	suite_add_tcase(s, tc_core);
 	return s;

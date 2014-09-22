@@ -80,7 +80,7 @@ SR spide_url(char *url)
 	int	bodyi = 0;
 	// get head
 	while( (count = read(sockfd, rbuf,bufsize)) > 0){
-		printf("bufstarted-------\n%s\n",rbuf);	 
+		//printf("bufstarted-------\n%s\n",rbuf);	 
 		if(hbufed == 0){
 			//printf("first buffer:%s\n", rbuf);
 			int i = 1;
@@ -110,8 +110,15 @@ SR spide_url(char *url)
 		ret->status = SPIDE_EHTTPSTATUS;
 		return ret;
 	}
-
-//	printf("len:%d html:%s\n",bodylen, bodybuf);
-	ret->html = bodybuf;
+	char *ed = http_getHeaderVal(hbuf, "Transfer-Encoding");
+	log_debug("encodings:%s\n",ed);
+	if(strstr(ed, "chunked") != NULL) {
+		ret->html = http_rmchunk(bodybuf);
+		free(bodybuf);	
+	} else {
+		ret->html = bodybuf;
+	}
+	printf("html:%s\n",ret->html);
+	free(ed);
 	return ret;
 }

@@ -5,4 +5,5 @@
 int http_getStatus(char *headBuf);
 /* get header value from header buffer */
 char *http_getHeaderVal(char *headBuf, char *key);
+char *http_rmchunk(char *bodybuf);
 #endif

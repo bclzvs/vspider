@@ -8,6 +8,7 @@ int main(int argc, const char **argv)
 	SRunner *sr;
 	s =make_util_http_suite();
 	sr = srunner_create(s);
+	srunner_set_fork_status(sr, CK_NOFORK);
 //	srunner_add_suite
 	srunner_run_all(sr, CK_NORMAL);
 	int number_failed;
