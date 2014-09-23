@@ -21,8 +21,9 @@ END_TEST
 
 START_TEST(test_rmchunk)
 {
-	char *bodybuf ="d\r\n<html><body>\ne\r\n</body></html>0\r\noooo";
-	ck_assert_str_eq("<html><body>\n</body></html>",http_rmchunk(bodybuf));
+	char *bodybuf ="d\r\n<html><body>\n\r\ne\r\n</body></html>\r\n0\r\noooo";
+	int	len = 0;
+	ck_assert_str_eq("<html><body>\n</body></html>",http_rmchunk(bodybuf, &len));
 }
 END_TEST
 

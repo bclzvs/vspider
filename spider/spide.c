@@ -120,6 +120,8 @@ SR spide_url(char *url)
 		free(bodybuf);	
 	} else {
 		ret->html = bodybuf;
+		char *cl = http_getHeaderVal(hbuf, "Content-Length");
+		ret->content_len = atoi(cl);
 	}
 	//printf("rmed html:%s\n",ret->html);
 	free(ed);
