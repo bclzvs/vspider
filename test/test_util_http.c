@@ -1,5 +1,6 @@
 #include "../include/util_http.h"
-#include <check.h>
+#include "../include/unit_test.h"
+
 static char * headbuf = "HTTP/1.1 200 OK\r\nTransfer-Encoding: chuncked\r\n";
 START_TEST(test_getheader)
 {

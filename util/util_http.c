@@ -56,7 +56,7 @@ char *http_rmchunk(char *bodybuf, int *pretlen)
 	int len = 0;
 	len = strtol(chunk_len_index, NULL, 16);
 	for(; len > 0; len = strtol(chunk_len_index, NULL, 16)){
-		printf("chunk len:%d\n", len);
+//		printf("chunk len:%d\n", len);
 		chunk_len_end = strchr(chunk_len_index, '\r');
 		con_index = chunk_len_end + 2;  // skip \r\n move to content start
 		ret = (char *)realloc(ret, retlen + len + 1);
