@@ -3,7 +3,7 @@ objects := main.o log.o spide.o template.o util_url.o util_http.o
 tobjects := tmain.o util_http.o test_util_http.o log.o util_regex.o test_util_regex.o
 CFLAGS = -W -g
 all:$(objects)
-	cc $(CFLAGS) -o vspider $(objects)
+	cc $(CFLAGS) -o vspider $(objects) -lxml2
 test:$(tobjects)
 	cc $(CFLAGS) -o vtest $(tobjects)  -lcheck -lrt -lpthread -lm
 #/usr/lib/x86_64-linux-gnu/libcheck.a

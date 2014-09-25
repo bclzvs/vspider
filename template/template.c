@@ -78,3 +78,8 @@ char* getKeyValue(const char* key, int keyLength, int lineStart,int lineEnd)
 		return NULL;
 	}
 }
+
+xmlDocPtr getXml()
+{
+	return NULL;
+}
