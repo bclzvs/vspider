@@ -5,6 +5,7 @@ CFLAGS = -W -g
 all:$(objects)
 	cc $(CFLAGS) -o vspider $(objects)
 test:$(tobjects)
-	cc $(CFLAGS) -o vtest $(tobjects) /usr/lib/libcheck.a
+	cc $(CFLAGS) -o vtest $(tobjects)  -lcheck -lrt -lpthread -lm
+#/usr/lib/x86_64-linux-gnu/libcheck.a
 clean:
 	-rm *.o
