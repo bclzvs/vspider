@@ -51,3 +51,45 @@ regmatch_t* regex_getMatches(char *input, char*pattern)
 	regfree(&reg);
 	return pmatch;
 }
+
+list_rmatch_t* regex_getListMatch(char *input, char *pattern, int *pcount)
+{
+	int	status, i;
+	int	cflags = REG_EXTENDED;
+	size_t	nmatch = 9;
+	regex_t	reg;
+	regcomp(&reg, pattern, cflags);
+
+	list_rmatch_t *head = NULL;// = malloc(sizeof(list_rmatch_t));
+	list_rmatch_t *cl = NULL;
+	list_rmatch_t *p = NULL;
+	int	off = 0;
+	int	count = 0;
+	for(;;){
+		//regmatch_t *match = regex_getMatches(input, pattern);
+		regmatch_t *pmatch = malloc(sizeof(regmatch_t) * 9);
+		memset(pmatch, 0 ,sizeof(regmatch_t) * 9);
+		status = regexec(&reg, input + off, nmatch, pmatch, 0);
+		if( status != 0){
+			break;
+		}
+		int	i = 0;
+		for(; i < 9; i++){
+			if(pmatch[i].rm_so < 0) break;
+			pmatch[i].rm_so += off;
+			pmatch[i].rm_eo += off;
+		}
+		cl = malloc(sizeof(list_rmatch_t));
+		if(p!=NULL) p->next = cl;
+		cl->pmatch = pmatch;
+		if(head == NULL) head = cl;
+		p = cl;
+		cl = p->next;
+
+		off += pmatch->rm_eo; // pmatch 0 rm_eo
+		count++;
+	}
+	if(pcount != NULL) *pcount = count;
+	regfree(&reg);
+	return head;
+}
