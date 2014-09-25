@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 struct rule {
 	xmlNodePtr	node;
+	char	*name;
 	char	*pattern;
 	char	*match;
 	char	*action;
@@ -13,4 +14,5 @@ typedef struct rule rule_t;
 xmlDocPtr rule_load(char *siteName);
 rule_t *rule_first(xmlDocPtr doc);
 rule_t *rule_new(xmlNodePtr node);
+rule_t *rule_findby(xmlNodePtr node, char *name);
 #endif

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #define FILENAME_SIZE 100
-#define SET_ATTR(x) if(!xmlStrcmp(attrPtr->name, BAD_CAST x)){\
-		pr->pattern = (char *)xmlGetProp(node, BAD_CAST x); \
+#define SET_ATTR(a,x) if(!xmlStrcmp(t->name, BAD_CAST x)){\
+		a = (char *)xmlGetProp(node, BAD_CAST x); \
 		continue;\
 		}
 xmlDocPtr rule_load(char *siteName)
@@ -35,10 +35,13 @@ rule_t *rule_new(xmlNodePtr node)
 	rule_t *pr = malloc(sizeof(rule_t));
 	pr->node = node;
 	xmlAttrPtr attrPtr = node->properties;
+	xmlAttrPtr t = NULL;
 	while(attrPtr != NULL){
-		SET_ATTR("pattern");
-		SET_ATTR("match");
+		t	= attrPtr;
 		attrPtr = attrPtr->next;
+		SET_ATTR(pr->pattern, "pattern");
+		SET_ATTR(pr->match, "match");
+		SET_ATTR(pr->name, "name");
 	}
 	return pr;
 }

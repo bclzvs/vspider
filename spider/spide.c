@@ -1,6 +1,7 @@
 #include "../include/log.h"
 #include "../include/template.h"
 #include "../include/spide.h"
+#include <unistd.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -11,15 +12,27 @@
 #include "stdio.h"
 #include <errno.h>
 #include "../include/util_http.h"
-
+#include "../include/rule.h"
+#include "../include/util_regex.h"
 SR spide_url(char *url);
 SpideResultP spide(TemplateP template)
 {
 	log_info("spide name:%s, url:%s\n",template->name, template->url);
 	SR ret = spide_url(template->url); 
-	if(ret->status == SPIDE_SUCCESS){
-		log_info("spide success, len:%d\n", ret->content_len);
+	if(ret->status != SPIDE_SUCCESS){
+		log_info("spide failed");
 	}
+	
+	log_info("spide success, len:%d\n", ret->content_len);
+	xmlDocPtr doc = rule_load(template->name);
+	if(doc == NULL) return ret;
+	
+	rule_t *prule = rule_first(doc);
+	log_info("parsing %s...", prule->name);
+	char *mval = regex_getMatchValue(ret->html, prule->pattern); 
+	log_info("%s\n", mval == NULL ? "failed" : "success");
+	log_debug("regex result:%s\n", mval);
+	free(mval);
 	return ret;
 }
 
@@ -49,7 +62,7 @@ SR spide_url(char *url)
 	addr.sin_port	= htons(80);
 	memcpy(&addr.sin_addr, *pptr, sizeof(struct in_addr));
 
-	log_info("connecting\n");
+	log_info("connecting.......");
 	if( connect(sockfd, (struct sockaddr*)&addr, sizeof(addr)) != 0){
 		inet_ntop(hptr->h_addrtype, *pptr,ipstr,16);
 		log_err("connect %s:%s failed\n", url, ipstr);
@@ -79,7 +92,6 @@ SR spide_url(char *url)
 	int bodylen = 0;
 	int 	count = 0;
 	int	hbufed = 0;
-	int	bodyi = 0;
 	// get head
 	while( (count = read(sockfd, rbuf,bufsize)) > 0){
 		//printf("bufstarted-------\n%s\n",rbuf);	 
@@ -91,7 +103,7 @@ SR spide_url(char *url)
 					log_debug("found split line %d\n",i);
 					memcpy(hbuf, rbuf, i);	 
 					//hbuf[i+1] = '\0';
-					bodyi = i + 2; // \r\n
+					//bodyi = i + 2; // \r\n
 					hbufed = 1;
 					memcpy(bodybuf, rbuf+i+2, count-i-2);
 					bodylen = count-i-2;

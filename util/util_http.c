@@ -34,13 +34,14 @@ char *http_getHeaderVal(char *headBuf, char *key)
 	memcpy(fkey+2, key, len);
 	fkey[2+len] = ':';
 	fkey[3+len] = '\0';
-	char *p = strstr(headBuf, fkey); 
+	char *sp = strstr(headBuf, fkey); 
 	free(fkey);
-	if(p == NULL) return NULL;
-	p += fl;	
-	char *ep = strchr(p, '\r');
-	char *ret = malloc(ep - p);
-	memcpy(ret, p, ep-p);
+	if(sp == NULL) return NULL;
+	sp += fl;// skip key+:	
+	char *ep = strchr(sp, '\r');
+	char *ret = malloc(ep - sp);
+	memcpy(ret, sp, ep-sp);
+	ret[ep-sp] = '\0';
 	return ret;	
 }
 

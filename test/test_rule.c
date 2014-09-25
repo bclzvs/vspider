@@ -24,6 +24,7 @@ START_TEST(test_rule_attr)
 	rule_t *prule = rule_first(doc);
 	ck_assert_str_eq("testp", prule->pattern);
 	ck_assert_str_eq("single", prule->match);
+	ck_assert_str_eq("menu", prule->name);
 }
 END_TEST
 
