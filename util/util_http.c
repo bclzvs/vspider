@@ -47,7 +47,7 @@ char *http_getHeaderVal(char *headBuf, char *key)
 /* remove chunk tag */
 char *http_rmchunk(char *bodybuf, int *pretlen)
 {
-	char lenbuf[20];
+//	char lenbuf[20];
 	int	retlen = 0;
 	char *ret = NULL;// = malloc(retlen);
 	char *chunk_len_index = bodybuf;

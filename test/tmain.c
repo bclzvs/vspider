@@ -8,6 +8,7 @@ int main(int argc, const char **argv)
 	s =make_util_http_suite();
 	sr = srunner_create(s);
 	srunner_set_fork_status(sr, CK_NOFORK);
+	srunner_add_suite(sr, make_rule_suite());
 	srunner_add_suite(sr, make_util_regex_suite());
 	if(argc == 1){
 		srunner_run_all(sr, CK_NORMAL);
