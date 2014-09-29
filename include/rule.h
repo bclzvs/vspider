@@ -11,8 +11,8 @@ struct rule {
 	char	*actionarg;		
 };
 typedef struct rule rule_t;
-xmlDocPtr rule_load(char *siteName);
+xmlDocPtr rule_load(const char *siteName);
 rule_t *rule_first(xmlDocPtr doc);
 rule_t *rule_new(xmlNodePtr node);
-rule_t *rule_findby(xmlNodePtr node, char *name);
+rule_t *rule_findby(xmlDocPtr doc, const char *name);
 #endif

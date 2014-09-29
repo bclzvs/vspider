@@ -1,15 +1,19 @@
 #include "../include/rule.h"
 #include <libxml/xmlreader.h>
 #include <libxml/parser.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+#include <libxml/tree.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-#define FILENAME_SIZE 100
+#define FILENAME_SIZE	100
+#define PATH_SIZE	200
 #define SET_ATTR(a,x) if(!xmlStrcmp(t->name, BAD_CAST x)){\
 		a = (char *)xmlGetProp(node, BAD_CAST x); \
 		continue;\
 		}
-xmlDocPtr rule_load(char *siteName)
+xmlDocPtr rule_load(const char *siteName)
 {
 	xmlDocPtr doc;
 	char	fileName[FILENAME_SIZE];	
@@ -44,4 +48,19 @@ rule_t *rule_new(xmlNodePtr node)
 		SET_ATTR(pr->name, "name");
 	}
 	return pr;
+}
+
+rule_t *rule_findby(xmlDocPtr doc,const char *name)
+{
+	xmlXPathContextPtr	context;
+	xmlXPathObjectPtr	xpathObj;
+	context = xmlXPathNewContext(doc);
+	char	path[PATH_SIZE];
+	snprintf(path, PATH_SIZE, "//rule[@name='%s']", name);
+	xpathObj = xmlXPathEvalExpression((xmlChar *)path, context);	
+	xmlXPathFreeContext(context);
+	
+	if(xpathObj == NULL) return NULL;
+	xmlNodePtr node = xpathObj->nodesetval->nodeTab[0];
+	return rule_new(node);
 }

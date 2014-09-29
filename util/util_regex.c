@@ -5,21 +5,26 @@
 #include <stdio.h>
 char *regex_getMatchValue(char *input, char *pattern)
 {
-	int	status, i;
-	//printf("input:%s\n", input);
-	//printf("pattern:%s\n", pattern);
+	int	status;
 	regmatch_t pmatch[1];
-	int	cflags = REG_EXTENDED;
+	int	cflags = REG_EXTENDED; 
 	size_t	nmatch = 1;
 	regex_t	reg;
-	regcomp(&reg, pattern, cflags);
+	status = regcomp(&reg, pattern, cflags);
+	if(status != 0){
+		char	errbuf[100];
+		size_t el = regerror(status, &reg, errbuf, 100);
+		errbuf[el] = '\0';
+		printf("pattern error:%s of --->", errbuf);
+		regfree(&reg);
+		return NULL;
+	}	
 	status = regexec(&reg, input, nmatch, pmatch, 0);
 	if( status != 0){
 		regfree(&reg);
 		return NULL;
 	}
 	char	*ret = regex_getValue(input, pmatch);
-	//printf("match value:%s\n", ret);
 	regfree(&reg);
 	return ret;
 }
@@ -35,7 +40,7 @@ char *regex_getValue(char* input, regmatch_t *pmatch)
 
 regmatch_t* regex_getMatches(char *input, char*pattern)
 {
-	int	status, i;
+	int	status;
 	//printf("input:%s\n", input);
 	//printf("pattern:%s\n", pattern);
 	regmatch_t *pmatch = malloc(sizeof(regmatch_t) * 9);
@@ -54,7 +59,7 @@ regmatch_t* regex_getMatches(char *input, char*pattern)
 
 list_rmatch_t* regex_getListMatch(char *input, char *pattern, int *pcount)
 {
-	int	status, i;
+	int	status;
 	int	cflags = REG_EXTENDED;
 	size_t	nmatch = 9;
 	regex_t	reg;

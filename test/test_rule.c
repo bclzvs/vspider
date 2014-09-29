@@ -28,6 +28,17 @@ START_TEST(test_rule_attr)
 }
 END_TEST
 
+START_TEST(test_rule_findby)
+{
+	xmlDocPtr doc = rule_load("test");
+	rule_t *prule = rule_findby(doc, "menu");
+	ck_assert(prule != NULL);
+	ck_assert_str_eq("testp", prule->pattern);
+	ck_assert_str_eq("single", prule->match);
+	ck_assert_str_eq("menu", prule->name);
+}
+END_TEST
+
 Suite *make_rule_suite()
 {
 	Suite *s;
@@ -37,6 +48,7 @@ Suite *make_rule_suite()
 	tcase_add_test(tc_core,test_rule_load);
 	tcase_add_test(tc_core,test_rule_first);
 	tcase_add_test(tc_core,test_rule_attr);
+	tcase_add_test(tc_core,test_rule_findby);
 
 	suite_add_tcase(s, tc_core);
 	return s;

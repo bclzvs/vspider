@@ -7,6 +7,8 @@ START_TEST(test_regex_getMatchVal_rn)
 {
 	char *input = "<div class=\042must-yj\042>\r\n</div><ul></ul>"; // \042 is "
 	char *pattern = "class=\"must-yj\"[[:print:]\r\n]*?</div>";
+	// or char *pattern = "class=\"must-yj\"[[:print:][:space:]]*?</div>";
+	// or char *pattern = "class=\"must-yj\".*?</div>";
 	char *value = regex_getMatchValue(input, pattern);
 	ck_assert_str_eq("class=\"must-yj\">\r\n</div>", value);
 }

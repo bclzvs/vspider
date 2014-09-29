@@ -1,6 +1,7 @@
 # exe file
 vspider
 vtest
+rule
 
 # vim file
 *.swo
