@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../include/rule.h"
-#include "../include/util_regex.h"
+#include "../include/util_pcre.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -37,7 +37,7 @@ int main(const int argc, const char **argv)
 
 	xmlDocPtr doc = rule_load(argv[2]);
 	rule_t *prule = rule_findby(doc, argv[3]);		
-	char *val = regex_getMatchValue(input, prule->pattern);
+	char *val = pcre_getMatchVal(input, prule->pattern, strlen(input));
 	printf("match:[%s]\n", val);
 	return 0;
 }
