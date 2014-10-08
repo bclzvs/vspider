@@ -42,6 +42,28 @@ START_TEST(test_pcre_getMatchCapture_name_2)
 }
 END_TEST
 
+START_TEST(test_pcre_getMatches)
+{
+	char *input = "<li><a href='test1'>test1 page</a></li><li><a href='test2'>test2 page</a></li><li><a href='test3'>test3 page</a></li>"; 
+	char *pattern = "href='(?<href>[^']*)'>(?<name>[^<]*)</a>";
+	pcre_match_t *match = pcre_getMatches(input, pattern, strlen(input));
+	ck_assert_int_eq(1, match->success);
+	int	i = 1;
+	char	expect[20];
+	for(; match != NULL; match = match->next, i++){
+		pcre_capture_t *pcapture = match->pcapture;
+		pcapture = pcapture->next;	// skip 0 capture;
+		ck_assert_str_eq("href", pcapture->name);
+		snprintf(expect, 20, "test%c", i + '0');
+		ck_assert_str_eq(expect, pcapture->value);
+		pcapture = pcapture->next;
+		ck_assert_str_eq("name", pcapture->name);
+		snprintf(expect, 20, "test%c page", i + '0');
+		ck_assert_str_eq(expect, pcapture->value);
+	}
+}
+END_TEST
+
 Suite *make_util_pcre_suite()
 {
 	Suite *s;
@@ -51,6 +73,7 @@ Suite *make_util_pcre_suite()
 	tcase_add_test(tc_core, test_pcre_getMatchVal);
 	tcase_add_test(tc_core, test_pcre_getMatchCapture_name_1);
 	tcase_add_test(tc_core, test_pcre_getMatchCapture_name_2);
+	tcase_add_test(tc_core,test_pcre_getMatches);
 	//tcase_add_test(tc_core, test_pcre_getListMatch);
 
 	suite_add_tcase(s, tc_core);
