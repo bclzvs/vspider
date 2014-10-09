@@ -17,7 +17,11 @@ struct pcre_match {
 };
 typedef struct pcre_match pcre_match_t;
 char *pcre_getMatchVal(char *subject, char *pattern, int subject_len);
-
 struct pcre_capture* pcre_getMatchCapture(char *subject, char *pattern, int subject_len);
 pcre_match_t *pcre_getMatches(char *subject, char *pattern, int subject_len);
+
+pcre_capture_t *pcre_capture_findByName(pcre_capture_t *pcapture, char *name);
+pcre_capture_t *pcre_capture_findByIndex(pcre_capture_t *pcapture, int index);
+void free_pcre_capture(pcre_capture_t *pcapture);
+void free_pcre_match(pcre_match_t *pmatch);
 #endif

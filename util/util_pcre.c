@@ -117,9 +117,16 @@ struct pcre_capture* pcre_getMatchCapture(char *subject, char *pattern, int subj
 	if (namecount <= 0) {
 		for (i = 1; i < rc; i++)
 		{
-			char *substring_start = subject + ovector[2*i];
-			int substring_length = ovector[2*i+1] - ovector[2*i];
-			printf("%2d: %.*s\n", i, substring_length, substring_start);
+			pcre_capture_t *t = malloc(sizeof(struct pcre_capture));
+			memset(t, 0, sizeof(pcre_capture_t));
+			int vallen = ovector[2*i+1] - ovector[2*i];
+			char *value = malloc(vallen + 1);
+			memcpy(value, subject + ovector[2*i], vallen);
+			value[vallen] = '\0';	
+			t->value = value;
+			
+			cur->next = t;
+			cur = cur->next;
 		}
 	} else {
 		unsigned char *tabptr;
@@ -242,9 +249,16 @@ pcre_match_t *pcre_getMatches(char *subject, char *pattern, int subject_len)
 		if (namecount <= 0) {
 			for (i = 1; i < rc; i++)
 			{
-				char *substring_start = subject + ovector[2*i];
-				int substring_length = ovector[2*i+1] - ovector[2*i];
-				printf("%2d: %.*s\n", i, substring_length, substring_start);
+				pcre_capture_t *t = malloc(sizeof(struct pcre_capture));
+				memset(t, 0, sizeof(pcre_capture_t));
+				int vallen = ovector[2*i+1] - ovector[2*i];
+				char *value = malloc(vallen + 1);
+				memcpy(value, subject + ovector[2*i], vallen);
+				value[vallen] = '\0';	
+				t->value = value;
+				
+				cur->next = t;
+				cur = cur->next;
 			}
 		} else {
 			unsigned char *tabptr;
@@ -301,4 +315,44 @@ pcre_match_t *pcre_getMatches(char *subject, char *pattern, int subject_len)
 	}
 	pcre_free(re);
 	return matchhead;
+}
+
+pcre_capture_t *pcre_capture_findByName(pcre_capture_t *pcapture, char *name)
+{
+	if(pcapture == NULL || name == NULL) return NULL;
+	for(; pcapture != NULL; pcapture = pcapture->next){
+		if(pcapture->name == NULL) continue;
+		if(!strcmp(pcapture->name, name)) return pcapture;
+	}	
+	return NULL;
+}
+
+pcre_capture_t *pcre_capture_findByIndex(pcre_capture_t *pcapture, int index)
+{
+	if(pcapture == NULL) return NULL;
+	int	i;
+	for(i = 0; pcapture != NULL; i++, pcapture = pcapture->next){
+		if(i == index) return pcapture;
+	}	
+	return NULL;
+}
+
+void free_pcre_capture(pcre_capture_t *pcapture)
+{
+	if(pcapture == NULL) return;
+	for(; pcapture != NULL; pcapture = pcapture->next){
+		if(pcapture->name != NULL) free(pcapture->name);
+		if(pcapture->value != NULL) free(pcapture->value);
+		free(pcapture);	
+	}	
+	return;
+}
+void free_pcre_match(pcre_match_t *pmatch)
+{
+	if(pmatch == NULL) return;
+	for(; pmatch != NULL; pmatch = pmatch->next){
+		free(pmatch->pcapture);
+		if(pmatch->msg != NULL) free(pmatch->msg);
+		free(pmatch);		
+	}
 }
